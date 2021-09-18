@@ -27,6 +27,8 @@ class HiModule(Module):
         :return: 根据result返回的结果
         """
         name = ''.join(random.sample(string.ascii_letters + string.digits, 10))
+        if not isinstance(result, Result):
+            result = result()
         stmt = Statement(name=name, sql=sql, result=result, doc='', filename=None)
         stmt.set_module(self)
         return stmt(*multiparams, **params)

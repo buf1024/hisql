@@ -8,6 +8,7 @@ setup(
     zip_safe=False,
     platform="any",
     install_requires=[
-        'pugsql'
+        'pugsql',
+        'pandas'
     ],
 )

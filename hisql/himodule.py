@@ -1,10 +1,34 @@
 import random
 import string
-from inspect import isfunction
+from decimal import Decimal
 
 from pugsql.compiler import Module
-from pugsql.statement import Statement
+from pugsql.statement import Statement, Many
 from pugsql.statement import Result
+
+import pandas as pd
+
+
+class FloatDataFrame(Many):
+    def transform(self, r):
+        ks = r.keys()
+        rs = [{k: float(v) if isinstance(v, Decimal) else v for k, v in zip(ks, row)} for row in r.fetchall()]
+        return None if len(rs) == 0 else pd.DataFrame(rs)
+
+    @property
+    def display_type(self):
+        return 'float_dataframe'
+
+
+class DataFrame(Many):
+    def transform(self, r):
+        ks = r.keys()
+        rs = [{k: v for k, v in zip(ks, row)} for row in r.fetchall()]
+        return None if len(rs) == 0 else pd.DataFrame(rs)
+
+    @property
+    def display_type(self):
+        return 'dataframe'
 
 
 class HiModule(Module):

@@ -9,21 +9,30 @@ from pugsql.statement import Result
 import pandas as pd
 
 
-class FloatDataFrame(Many):
-    def transform(self, r):
-        ks = r.keys()
-        rs = [{k: float(v) if isinstance(v, Decimal) else v for k, v in zip(ks, row)} for row in r.fetchall()]
-        return None if len(rs) == 0 else pd.DataFrame(rs)
-
-    @property
-    def display_type(self):
-        return 'float_dataframe'
-
-
 class DataFrame(Many):
+    def __init__(self, meta=None):
+        """
+
+        :param meta: sql 与 dataframe 值转换
+        """
+        super().__init__()
+        self.meta = meta
+
+    def _transform_value(self, v):
+        if self.meta is None or \
+                not isinstance(self.meta, dict) or \
+                len(self.meta) <= 0:
+            return v
+
+        type_v = type(v)
+        if type_v in self.meta:
+            return self.meta[type_v](v)
+
+        return v
+
     def transform(self, r):
         ks = r.keys()
-        rs = [{k: v for k, v in zip(ks, row)} for row in r.fetchall()]
+        rs = [{k: self._transform_value(v) for k, v in zip(ks, row)} for row in r.fetchall()]
         return None if len(rs) == 0 else pd.DataFrame(rs)
 
     @property

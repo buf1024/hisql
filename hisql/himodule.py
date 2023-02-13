@@ -10,15 +10,19 @@ import pandas as pd
 
 
 class DataFrame(Many):
-    def __init__(self, meta=None):
+    def __init__(self, decimal_to_float=True, meta=None):
         """
 
         :param meta: sql 与 dataframe 值转换
         """
         super().__init__()
         self.meta = meta
+        self.decimal_to_float = decimal_to_float
 
     def _transform_value(self, v):
+        if self.decimal_to_float and type(v) == type(Decimal(0)):
+            return float(v)
+
         if self.meta is None or \
                 not isinstance(self.meta, dict) or \
                 len(self.meta) <= 0:
